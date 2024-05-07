@@ -1,11 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from tensorflow.keras.models import load_model
+from disease_data import *
 from PIL import Image
 import numpy as np
-import os
+import os, io
 
 app = FastAPI()
-model = load_model("model/model-cataract.h5")  # 모델 파일 경로
 
 @app.get("/data")
 async def data():
@@ -26,11 +26,39 @@ async def make_prediction():
             processed_image = preprocess_image(img)
 
             # 모델 예측 수행
-            prediction = model.predict(np.array([processed_image]))
-            return {"prediction": prediction.tolist()}
+            prediction = model1.predict(np.array([processed_image]))
+
+            return {"prediction": prediction.tolist()[0]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/predict2")
+async def make_prediction2(file: UploadFile = File(...)):
+
+    results = []
+
+    try:
+        content = await file.read()
+        image = Image.open(io.BytesIO(content))
+        processed_image = preprocess_image(image)
+        for disease in models:
+            model = models[disease]
+            result = model.predict(np.array([processed_image])).tolist()[0]
+            results.append((max(result), disease))
+            ind = result.index(max(result))
+            if max(result) >= 0.800:
+                return {"disease_name": disease,
+                        "disease_kr":disease_kr[disease],
+                        "disease_label_kr":disease_label[disease],
+                        "result": result,
+                        "max_possibility_index": ind,
+                        "max_possibility": max(result),
+                        "result_label":disease_label[disease][ind]}
+
+        raise HTTPException(status_code=404)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 def preprocess_image(image):
     # 이미지 크기 조정 및 스케일링

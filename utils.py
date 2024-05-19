@@ -5,7 +5,7 @@ import numpy as np
 def run_models(image):
     processed_image = preprocess_image(image)
     results = []
-
+    
     for disease in models:
         model = models[disease]
         result = model.predict(np.array([processed_image])).tolist()[0]

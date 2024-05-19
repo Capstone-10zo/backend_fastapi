@@ -22,13 +22,11 @@ model10 = load_model("model/model-pigmentary_keratitis(색소침착성각막염)
 
 
 model = [model1, model2, model3, model4, model5, model6,model7,model8,model9, model10]
-# model = [model1]
 models = dict()
 disease_label = dict()
 disease_kr = dict()
 
 for i in range(len(model)):
-    print(disease_k[i])
     models[disease[i]] = model[i]
     disease_kr[disease[i]] = disease_k[i]
     disease_label[disease[i]] = disease_lb[i]

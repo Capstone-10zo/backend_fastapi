@@ -1,12 +1,13 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from tensorflow.keras.models import load_model
 from utils import run_models
+from chatbot import model_load, qna_bot, model_save
 from PIL import Image
 import numpy as np
 import os, io
+import pandas as pd
 
 app = FastAPI()
-
 
 @app.get("/data")
 async def data():
@@ -47,3 +48,15 @@ async def make_prediction2(file: UploadFile = File(...)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/chatbot")
+async def getResponse(request: Request):
+    body = await request.body()
+    text = body.decode()
+    try:
+        return model_load.load_qna(text)
+
+    except HTTPException as e:
+        raise HTTPException(status_code = 500)
+

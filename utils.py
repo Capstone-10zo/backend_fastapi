@@ -1,29 +1,24 @@
 from disease_data import *
+from tensorflow.keras.models import load_model
 import numpy as np
 
 
 def run_models(image):
     processed_image = preprocess_image(image)
-    results = []
-    
-    for disease in models:
-        model = models[disease]
-        result = model.predict(np.array([processed_image])).tolist()[0]
-        ind = result.index(max(result))
+    model = load_model("model/disease_model2.h5")
+    result = model.predict(np.array([processed_image])).tolist()[0]
+    max_ind = result.index(max(result))
 
-        results.append((max(result), disease, ind, result))
+    disease_name_kr = disease_k[max_ind]
 
-    results.sort(key=lambda x: x[0], reverse=True)
-    final_model = results[0]
-    disease_name = final_model[1]
+    print(result)
 
-    return {"disease_name": disease_name,
-            "disease_kr": disease_kr[disease_name],
-            "disease_label_kr": disease_label[disease_name],
-            "result": final_model[-1],
-            "max_possibility_index": final_model[2],
-            "max_possibility": final_model[0],
-            "result_label": disease_label[disease_name][final_model[2]]}
+    return {"disease_name": disease_label[disease_name_kr],
+            "disease_kr": disease_name_kr,
+            "disease_label_kr": disease_k,
+            "result": result,
+            "max_possibility_index": max_ind,
+            "max_possibility": "%.2f%%" % (result[max_ind] * 100)}
 
 
 def preprocess_image(image):

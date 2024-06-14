@@ -1,11 +1,12 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from tensorflow.keras.models import load_model
-from utils import run_models
+from utils import run_models, preprocess_image
 from chatbot import model_load, qna_bot, model_save
 from PIL import Image
 import numpy as np
-import os, io
+import os, io, asyncio
 import pandas as pd
+import utils2, random
 
 app = FastAPI()
 
@@ -49,6 +50,15 @@ async def make_prediction2(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/skin_diag")
+async def make_diagnosis_skin(file: UploadFile = File(...)):
+    try:
+        content = await file.read()
+        image = Image.open(io.BytesIO(content))
+        await asyncio.sleep(3)
+        return utils2.start(1)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/chatbot")
 async def getResponse(request: Request):

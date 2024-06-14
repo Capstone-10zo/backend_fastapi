@@ -2,7 +2,7 @@ from .qna_bot import load_qna_bot
 
 def load_qna(request):
     # 저장된 파일 로드 -> QnABot 클래스 인스턴스 생성
-능    loaded_qna_bot1 = load_qna_bot('chatbot_model.pkl1')
+    loaded_qna_bot1 = load_qna_bot('chatbot_model.pkl1')
     loaded_qna_bot2 = load_qna_bot('chatbot_model.pkl2')
     loaded_qna_bot3 = load_qna_bot('chatbot_model.pkl3')
 
